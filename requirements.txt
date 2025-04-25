@@ -9,3 +9,4 @@ streamlit
 shap
 seaborn
 xgboost
+ipython
