@@ -217,6 +217,12 @@ if st.button("Predict Credit Risk"):
     input_df['Credit_per_age'] = input_df['Credit amount'] / input_df['Age']
     input_df['Credit_per_duration'] = input_df['Credit amount'] / input_df['Duration']
 
+    input_df = input_df[X_train.columns]
+
+    # 🔧 FIX: Make prediction
     prediction = model.predict(input_df)[0]
+
+    # Result
     risk = "Good" if prediction == 1 else "Bad"
     st.success(f"Predicted Credit Risk: **{risk}**")
+
