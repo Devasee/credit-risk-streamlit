@@ -179,7 +179,10 @@ st.subheader("📥 Make a Prediction")
 input_data = X_test.iloc[0].copy()
 input_fields = {}
 
+exclude_cols = ['Credit_per_age', 'Credit_per_duration']
 for col in X_test.columns:
+    if col in exclude_cols:
+        continue
     if str(X_test[col].dtype) == "category":
         input_fields[col] = st.selectbox(f"{col}", X_train[col].cat.categories, index=0)
     elif df[col].nunique() < 10:
@@ -190,6 +193,12 @@ for col in X_test.columns:
 if st.button("Predict Credit Risk"):
     input_df = pd.DataFrame([input_fields])
     input_df['Purpose'] = input_df['Purpose'].astype("category")
+    
+    # Auto-calculate the engineered features
+    input_df['Credit_per_age'] = input_df['Credit amount'] / input_df['Age']
+    input_df['Credit_per_duration'] = input_df['Credit amount'] / input_df['Duration']
+    
     prediction = model.predict(input_df)[0]
     risk = "Good" if prediction == 1 else "Bad"
     st.success(f"Predicted Credit Risk: **{risk}**")
+
