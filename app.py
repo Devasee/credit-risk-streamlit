@@ -176,29 +176,47 @@ st.components.v1.html(html, height=400)
 
 # --- Prediction Interface ---
 st.subheader("📥 Make a Prediction")
+
+# Define encoding maps (must match what was used in preprocessing)
+sex_map = {'male': 0, 'female': 1}
+housing_map = {'own': 0, 'rent': 1, 'free': 2}
+saving_map = {'little': 0, 'moderate': 1, 'quite rich': 2, 'rich': 3, 'unknown': -1}
+checking_map = {'none': 0, 'little': 1, 'moderate': 2, 'rich': 3, 'unknown': -1}
+
 input_data = X_test.iloc[0].copy()
 input_fields = {}
 
-exclude_cols = ['Credit_per_age', 'Credit_per_duration']
+# Select original labels for user-friendly input
+input_fields['Sex'] = st.selectbox("Sex", list(sex_map.keys()))
+input_fields['Housing'] = st.selectbox("Housing", list(housing_map.keys()))
+input_fields['Saving accounts'] = st.selectbox("Saving accounts", list(saving_map.keys()))
+input_fields['Checking account'] = st.selectbox("Checking account", list(checking_map.keys()))
+input_fields['Purpose'] = st.selectbox("Purpose", X_train['Purpose'].cat.categories)
+
+# Other numeric fields
 for col in X_test.columns:
-    if col in exclude_cols:
+    if col in ['Sex', 'Housing', 'Saving accounts', 'Checking account', 'Purpose', 'Credit_per_age', 'Credit_per_duration']:
         continue
-    if str(X_test[col].dtype) == "category":
-        input_fields[col] = st.selectbox(f"{col}", X_train[col].cat.categories, index=0)
-    elif df[col].nunique() < 10:
+    if df[col].nunique() < 10:
         input_fields[col] = st.selectbox(f"{col}", sorted(df[col].unique()), index=0)
     else:
         input_fields[col] = st.number_input(f"{col}", float(df[col].min()), float(df[col].max()), float(input_data[col]))
 
 if st.button("Predict Credit Risk"):
+    # Convert to DataFrame
     input_df = pd.DataFrame([input_fields])
+
+    # Encode categorical inputs
+    input_df['Sex'] = input_df['Sex'].map(sex_map)
+    input_df['Housing'] = input_df['Housing'].map(housing_map)
+    input_df['Saving accounts'] = input_df['Saving accounts'].map(saving_map)
+    input_df['Checking account'] = input_df['Checking account'].map(checking_map)
     input_df['Purpose'] = input_df['Purpose'].astype("category")
-    
-    # Auto-calculate the engineered features
+
+    # Add engineered features
     input_df['Credit_per_age'] = input_df['Credit amount'] / input_df['Age']
     input_df['Credit_per_duration'] = input_df['Credit amount'] / input_df['Duration']
-    
+
     prediction = model.predict(input_df)[0]
     risk = "Good" if prediction == 1 else "Bad"
     st.success(f"Predicted Credit Risk: **{risk}**")
-
