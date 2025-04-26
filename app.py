@@ -15,7 +15,7 @@ from sklearn.metrics import (
 from xgboost import XGBClassifier
 
 st.set_page_config(page_title="Credit Risk Prediction", layout="wide")
-st.title("💳 Credit Risk Prediction App (German Credit Dataset)")
+st.title(" Credit Risk Prediction App (German Credit Dataset)")
 
 # --- Load and preprocess the data ---
 @st.cache_data
@@ -119,7 +119,7 @@ model, X_train, X_test, y_train, y_test = train_model(df)
 y_pred = model.predict(X_test)
 y_proba = model.predict_proba(X_test)[:, 1]
 
-st.subheader("📊 Model Evaluation")
+st.subheader(" Model Evaluation")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -175,7 +175,7 @@ st.components.v1.html(html, height=400)
 
 
 # --- Prediction Interface ---
-st.subheader("📥 Make a Prediction")
+st.subheader(" Make a Prediction")
 
 # Define encoding maps (must match what was used in preprocessing)
 sex_map = {'male': 0, 'female': 1}
